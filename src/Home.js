@@ -10,12 +10,14 @@ function Home() {
                 </img>
 
                 <div className = 'home__row'>
-                    <Product 
+                    <Product
+                    id = {123} 
                     title = 'The lean startup: How Constant Innovation Creates Radically Successful Businesses Paperback' 
                     price = {19.99} 
                     image = 'https://images-na.ssl-images-amazon.com/images/I/81vvgZqCskL.jpg'
                     rating = {5}/>
                     <Product 
+                    id = {345}
                     title = 'Kenwood kMix Stand Mixer for Baking, Stylish Kitchen Mixer with K-beater, Dough Hook and Whisk, 5 Litre Glass Bowl'
                     price = {239} 
                     image = 'https://item-shopping.c.yimg.jp/i/n/birmingham-ex_birmxxamb071ws2lp6'
@@ -25,16 +27,19 @@ function Home() {
 
                 <div className = 'home__row'>
                     <Product 
+                    id = {567}
                     title = 'SteelSeries Apex 3 RGB Gaming Keyboard' 
                     price = {49.99}
                     rating = {5}
                     image = 'https://m.media-amazon.com/images/I/81L8fk7SGQL._AC_UY218_.jpg' />
                     <Product 
+                    id = {890}
                     title = 'Amazon Echo (3rd generation) | Smart Speaker with Alexa, Charcoal Fabric'
                     price = {98.99}
                     rating = {4}
                     image = 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6347/6347261_sd.jpg' />
                     <Product 
+                    id = {212}
                     title = 'New Apple iPad Pro (12.9 inch, Wi-Fi, 128GB) - Silver (4th Generation)'
                     price = {598.99}
                     rating = {5}
