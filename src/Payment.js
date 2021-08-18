@@ -7,6 +7,7 @@ import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import CurrencyFormat from 'react-currency-format';
 import { getBasketTotal} from './reducer';
 import axios from './axios';
+import {db} from './firebase';
 
 function Payment() {
     const[{basket, user}, dispatch] = useStateValue();
@@ -23,45 +24,64 @@ function Payment() {
     
     useEffect(() =>{
         //generate the special stripe secret which allows us to charge a customer
-        const getCLientSecret = async () => {
+
+        console.warn(`/payments/create?total=${getBasketTotal(basket) * 100}`)
+        const getClientSecret = async () => {
             const response = await axios({
                 method: 'post',
                 //Stripe expects the total in a currencies subunits
-                url: `/payments/create?total = ${getBasketTotal(basket) * 100}`
+                url: `/payments/create?total=${getBasketTotal(basket) * 100}`
             });
             setClientSecret(response.data.clientSecret)
         }
 
-        getCLientSecret();
+        getClientSecret();
     }, [basket])
 
-    console.log('THE SECRET IS >>>', clientSecret)
+    console.log('[CLIENTSCECRET]', clientSecret)
     
     const handleSubmit = async (event) => {
         event.preventDefault();
         setProcessing(true);
 
+        console.warn('client Secret', clientSecret)
+        console.warn('card', elements.getElement(CardElement))
         const payload = await stripe.confirmCardPayment(clientSecret, {
             payment_method: {
                 card: elements.getElement(CardElement)
             }
         }).then(({ paymentIntent }) => {
             //paymentIntent = payment confirmation
+            
+            db.collection('users')
+                .doc(user?.uid)
+                .collection('orders')
+                .doc(paymentIntent.id)
+                .set({
+                    basket,
+                    amount: paymentIntent.amount,
+                    created: paymentIntent.created
+                });        
+      
+
+
             setSucceeded(true);
             setError(null);
             setProcessing(false);
 
             dispatch({
                 type: 'EMPTY_BASKET'
-            })
+            });
             
-            history.replaceState('/orders')
-        })
-    }
+            history.replace('/orders')
+        });
+    };
 
-    const handleChange = e => {
+    const handleChange = event => {
         //Listen for changes in the CardElement
         //and display any errors as the customers type their card information
+        setDisabled(event.empty);
+        setError(event.error ? event.error.message : '')
     }
 
     return (
@@ -117,7 +137,7 @@ function Payment() {
                                     value = {getBasketTotal(basket)}
                                     displayType = {'text'}
                                     thousandSeparator = {true}
-                                    prefix = {'￥'}
+                                    prefix = {'$'}
                                     />
                                     <button disabled = {processing || disabled ||succeeded}>
                                         <span>{processing ? <p>Processing</p>: 'Buy Now'}</span>
@@ -125,7 +145,7 @@ function Payment() {
                             </div>
 
                             {/* Error */}
-                            {error && <div>{error}</div>}
+                            {error && <div>error</div>}
                         </form>
                     </div>
                 </div>
